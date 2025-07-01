@@ -17,5 +17,7 @@ jobs:
           aws-region: ${{secrets.AWS_REGION}}
           role-to-assume: ${{secrets.AWS_ACCESS_ROLE}}
 
-      - run: |
-          aws configure list
+      - name: ECR repo
+        uses: nicolasdonoso/build-ecr-repo@v1.0
+        with:
+          repository: test
