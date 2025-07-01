@@ -7,6 +7,9 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      AWS_ACCOUNT: ${{secrets.AWS_ACCOUNT_ID}}
+      AWS_REGION: ${{secrets.AWS_REGION}}
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -14,7 +17,7 @@ jobs:
       - name: Configure AWS Credentials for China region audience
         uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
-          aws-region: ${{secrets.AWS_REGION}}
+          aws-region: ${{env.AWS_REGION}}
           role-to-assume: ${{secrets.AWS_ACCESS_ROLE}}
 
       - name: ECR repo
