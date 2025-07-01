@@ -10,6 +10,8 @@ jobs:
     env:
       AWS_ACCOUNT: ${{secrets.AWS_ACCOUNT_ID}}
       AWS_REGION: ${{secrets.AWS_REGION}}
+      NAME: dev
+      
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -19,6 +21,15 @@ jobs:
         with:
           aws-region: ${{env.AWS_REGION}}
           role-to-assume: ${{secrets.AWS_ACCESS_ROLE}}
+
+      - name: Cache TF state
+        uses: actions/cache@v2
+        with:
+          key: ${{ env.NAME }}-${{ github.run_id }}
+          path: |
+            deploy/terraform/plan.tfplan
+            deploy/terraform/.terraform
+            deploy/terraform/terraform.tfstate
 
       - name: ECR repo
         uses: nicolasdonoso/build-ecr-repo@v1.0
