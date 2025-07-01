@@ -8,9 +8,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      AWS_ACCOUNT: ${{secrets.AWS_ACCOUNT_ID}}
-      AWS_REGION: ${{secrets.AWS_REGION}}
-      NAME: dev
+      AWS_REPOSITORY_NAME: "sample_repo"
 
     steps:
       - name: Checkout repo
@@ -19,19 +17,20 @@ jobs:
       - name: Configure AWS Credentials for China region audience
         uses: aws-actions/configure-aws-credentials@v4.1.0
         with:
-          aws-region: ${{env.AWS_REGION}}
-          role-to-assume: ${{secrets.AWS_ACCESS_ROLE}}
+          aws-region: ${{ secrets.AWS_REGION }}
+          role-to-assume: ${{ secrets.AWS_ACCESS_ROLE }}
 
-      - name: Cache TF state
-        uses: actions/cache@v3
-        with:
-          key: ${{ env.NAME }}-${{ github.run_id }}
-          path: |
-            deploy/terraform/plan.tfplan
-            deploy/terraform/.terraform
-            deploy/terraform/terraform.tfstate
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
 
-      - name: ECR repo
-        uses: nicolasdonoso/build-ecr-repo@v1.0
-        with:
-          repository: test
+      - name: ECR check
+        run: |
+          ECR_NAME=$(aws ecr describe-repositories --query "repositories[?repositoryName=='sample_repo'].repositoryName" --output text)
+          if [ "$ECR_NAME" != "" ]; then
+            echo "ありました"
+            echo $ECR_NAME
+          else
+            echo "ECRがないので作成します"
+            aws ecr create-repository --repository-name ${{ env.AWS_REPOSITORY_NAME }} --region ${{ secrets.AWS_REGION }}
+          fi
