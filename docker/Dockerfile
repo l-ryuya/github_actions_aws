@@ -52,7 +52,6 @@ RUN composer self-update --2
 RUN curl -sL https://deb.nodesource.com/setup_20.x | bash -
 RUN apt-get install -y nodejs
 
-COPY ../example-api .
 
 #  npm環境構築（フロントビルドツール用）
 RUN rm -rf node_modules                              # node_modules削除（前段のゴミ削除）
@@ -61,14 +60,16 @@ RUN npm cache clear --force                          # npmキャッシュ削除�
 RUN npm install webpack --save                       # webpackインストール（ローカルプロジェクト想定）
 RUN npm install node-sass --nodedir=/usr/include/node # node-sassビルド用にnodeヘッダ指定
 
-# Laravel依存のインストール
-RUN composer install --no-dev --optimize-autoloader
+# Laravelプロジェクトのコピー（Laravel全体を /var/www/html に置く場合）
+COPY ../example-api /var/www/html
+WORKDIR /var/www/html
 
-# SQLiteファイルの準備（必要なら）
-RUN touch database/database.sqlite && chmod 666 database/database.sqlite
-
-# .envをコピー（必要ならここで）
+# .envファイルのコピーは composer install より前に
 COPY docker/.env.production .env
 
-# Laravelのキャッシュ最適化とマイグレーション
-RUN php artisan config:cache && php artisan route:cache && php artisan migrate --force
+# Laravel依存のインストールと準備
+RUN composer install --no-dev --optimize-autoloader \
+ && touch database/database.sqlite && chmod 666 database/database.sqlite \
+ && php artisan config:cache \
+ && php artisan route:cache \
+ && php artisan migrate --force
