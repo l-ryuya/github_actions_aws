@@ -38,7 +38,7 @@ jobs:
       - name: build and push docker image to ecr
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: example-repository
+          REPOSITORY: sample_repo
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build ./docker --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
