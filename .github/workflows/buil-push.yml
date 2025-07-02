@@ -34,3 +34,12 @@ jobs:
             echo "ECRがないので作成します"
             aws ecr create-repository --repository-name ${{ env.AWS_REPOSITORY_NAME }} --region ${{ secrets.AWS_REGION }}
           fi
+          
+      - name: build and push docker image to ecr
+        env:
+          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          REPOSITORY: example-repository
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build . --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
