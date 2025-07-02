@@ -60,3 +60,15 @@ RUN npm install -g npm n cross-env                   # npm自体 + cross-envな�
 RUN npm cache clear --force                          # npmキャッシュ削除でクリーンな状態に
 RUN npm install webpack --save                       # webpackインストール（ローカルプロジェクト想定）
 RUN npm install node-sass --nodedir=/usr/include/node # node-sassビルド用にnodeヘッダ指定
+
+# Laravel依存のインストール
+RUN composer install --no-dev --optimize-autoloader
+
+# SQLiteファイルの準備（必要なら）
+RUN touch database/database.sqlite && chmod 666 database/database.sqlite
+
+# .envをコピー（必要ならここで）
+COPY docker/.env.production .env
+
+# Laravelのキャッシュ最適化とマイグレーション
+RUN php artisan config:cache && php artisan route:cache && php artisan migrate --force
