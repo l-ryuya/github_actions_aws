@@ -5,8 +5,8 @@ RUN cd /etc/apache2/mods-enabled \
   && ln -s ../mods-available/rewrite.load
 
 #  カスタムPHP設定とApacheのバーチャルホスト設定を追加
-ADD php.ini /usr/local/etc/php/
-ADD 000-default.conf /etc/apache2/sites-enabled/
+ADD docker/php.ini /usr/local/etc/php/
+ADD docker/000-default.conf /etc/apache2/sites-enabled/
 
 RUN apt-get update \
   && apt-get install -y \
