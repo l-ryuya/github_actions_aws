@@ -59,23 +59,25 @@ jobs:
     needs: build_and_push_image
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - name: check image
+        run: echo ${{needs.build_and_push_image.outputs.image_path  }}
+  #     - name: Checkout repo
+  #       uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials for China region audience
-        uses: aws-actions/configure-aws-credentials@v4.1.0
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ACCESS_ROLE }}
+  #     - name: Configure AWS Credentials for China region audience
+  #       uses: aws-actions/configure-aws-credentials@v4.1.0
+  #       with:
+  #         aws-region: ${{ secrets.AWS_REGION }}
+  #         role-to-assume: ${{ secrets.AWS_ACCESS_ROLE }}
 
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
+  #     - name: Login to Amazon ECR
+  #       id: login-ecr
+  #       uses: aws-actions/amazon-ecr-login@v2
 
-      - name: Render Amazon ECS task definition
-        id: render-web-container
-        uses: aws-actions/amazon-ecs-render-task-definition@v1
-        with:
-          task-definition: ./../ecs/task-definition.json
-          container-name: sample_container
-          image: ${{ needs.build_and_push_image.outputs.image_path}}
+  #     - name: Render Amazon ECS task definition
+  #       id: render-web-container
+  #       uses: aws-actions/amazon-ecs-render-task-definition@v1
+  #       with:
+  #         task-definition: ./../ecs/task-definition.json
+  #         container-name: sample_container
+  #         image: ${{ needs.build_and_push_image.outputs.image_path}}
