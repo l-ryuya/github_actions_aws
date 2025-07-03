@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run:
-          echo ${{ needs.build_and_push_image.outputs.image}}
+          echo "${{ needs.build_and_push_image.outputs.image }}"
       # - name: Checkout repo
       #   uses: actions/checkout@v4
 
