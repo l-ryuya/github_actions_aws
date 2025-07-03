@@ -1,0 +1,18 @@
+{
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
+    "family": "sample_task",
+    "containerDefinitions": [
+        {
+            "name": "sample_container",
+            "image": "<build-bush.ymlで定義されたimageで上書きされます>",
+            "essential": true
+        }
+    ],
+    "volumes": [],
+    "networkMode": "awsvpc",
+    "memory": ".5 GB",
+    "cpu": ".25 vCPU",
+    "executionRoleArn": ""
+}

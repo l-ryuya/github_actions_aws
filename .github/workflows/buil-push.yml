@@ -5,8 +5,10 @@ permissions:
   id-token: write
   contents: read
 jobs:
-  deploy:
+  build_and_push_image:
     runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.set-image.outputs.image }}
     env:
       AWS_REPOSITORY_NAME: "sample_repo"
 
@@ -26,7 +28,7 @@ jobs:
 
       - name: ECR check
         run: |
-          ECR_NAME=$(aws ecr describe-repositories --query "repositories[?repositoryName=='sample_repo'].repositoryName" --output text)
+          ECR_NAME=$(aws ecr describe-repositories --query "repositories[?repositoryName=='${{ env.AWS_REPOSITORY_NAME }}'].repositoryName" --output text)
           if [ "$ECR_NAME" != "" ]; then
             echo "ありました"
             echo $ECR_NAME
@@ -41,5 +43,34 @@ jobs:
           REPOSITORY: sample_repo
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -f ./docker/Dockerfile . --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
-          docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
+          IMAGE=${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}
+          docker build -f ./docker/Dockerfile . --tag $IMAGE
+          docker push $IMAGE
+          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+
+  ecs_deploy:
+    needs: build_and_push_image
+    runs-on: ubuntu-latest
+    steps:
+      - run:
+          echo ${{ needs.build_and_puth_image.outputs.image}}
+      # - name: Checkout repo
+      #   uses: actions/checkout@v4
+
+      # - name: Configure AWS Credentials for China region audience
+      #   uses: aws-actions/configure-aws-credentials@v4.1.0
+      #   with:
+      #     aws-region: ${{ secrets.AWS_REGION }}
+      #     role-to-assume: ${{ secrets.AWS_ACCESS_ROLE }}
+
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
+
+      # - name: Render Amazon ECS task definition
+      #   id: render-web-container
+      #   uses: aws-actions/amazon-ecs-render-task-definition@v1
+      #   with:
+      #     task-definition: ./../ecs/task-definition.json
+      #     container-name: sample_container
+      #     image: ${{ needs.build_and_puth_image.outputs.image}}
