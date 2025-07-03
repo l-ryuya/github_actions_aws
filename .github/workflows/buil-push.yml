@@ -11,56 +11,63 @@ jobs:
     outputs:
       # イメージのpathを次のjobで使用できるようにすうる
       # 変数名image_path
-      image_path: ${{ steps.set-image.outputs.image_uri }}
+      item1: ${{ steps.test.outputs.hello}}
     env:
       AWS_REPOSITORY_NAME: "sample_repo"
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials for China region audience
-        uses: aws-actions/configure-aws-credentials@v4.1.0
-        with:
-          aws-region: ${{ secrets.AWS_REGION }}
-          role-to-assume: ${{ secrets.AWS_ACCESS_ROLE }}
-
-      - name: Login to Amazon ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@v2
-
-      - name: ECR check
+      - name: test
+        id: test
         run: |
-          ECR_NAME=$(aws ecr describe-repositories --query "repositories[?repositoryName=='${{ env.AWS_REPOSITORY_NAME }}'].repositoryName" --output text)
-          if [ "$ECR_NAME" != "" ]; then
-            echo "ありました"
-            echo $ECR_NAME
-          else
-            echo "ECRがないので作成します"
-            aws ecr create-repository --repository-name ${{ env.AWS_REPOSITORY_NAME }} --region ${{ secrets.AWS_REGION }}
-          fi
-      # jobにIDを指定する
-      - id: set-image
-        name: build and push docker image to ecr
-        env:
-          REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: ${{ env.AWS_REPOSITORY_NAME }}
-          IMAGE_TAG: ${{ github.sha }}
-        run: |
-          echo $REGISTRY
-          echo $REPOSITORY
-          echo $IMAGE_TAG
-          IMAGE="${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}"
-          docker build -f ./docker/Dockerfile . --tag $IMAGE
-          docker push $IMAGE
-          echo "image_uri=${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
-          echo "IMAGE is $IMAGE"
+          echo "hello=hello world" >> "$GITHUB_OUTPUT"
+
+
+      # - name: Configure AWS Credentials for China region audience
+      #   uses: aws-actions/configure-aws-credentials@v4.1.0
+      #   with:
+      #     aws-region: ${{ secrets.AWS_REGION }}
+      #     role-to-assume: ${{ secrets.AWS_ACCESS_ROLE }}
+
+      # - name: Login to Amazon ECR
+      #   id: login-ecr
+      #   uses: aws-actions/amazon-ecr-login@v2
+
+      # - name: ECR check
+      #   run: |
+      #     ECR_NAME=$(aws ecr describe-repositories --query "repositories[?repositoryName=='${{ env.AWS_REPOSITORY_NAME }}'].repositoryName" --output text)
+      #     if [ "$ECR_NAME" != "" ]; then
+      #       echo "ありました"
+      #       echo $ECR_NAME
+      #     else
+      #       echo "ECRがないので作成します"
+      #       aws ecr create-repository --repository-name ${{ env.AWS_REPOSITORY_NAME }} --region ${{ secrets.AWS_REGION }}
+      #     fi
+      # # jobにIDを指定する
+      # - id: set-image
+      #   name: build and push docker image to ecr
+      #   env:
+      #     REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     REPOSITORY: ${{ env.AWS_REPOSITORY_NAME }}
+      #     IMAGE_TAG: ${{ github.sha }}
+      #   run: |
+      #     echo $REGISTRY
+      #     echo $REPOSITORY
+      #     echo $IMAGE_TAG
+      #     IMAGE="${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}"
+      #     docker build -f ./docker/Dockerfile . --tag $IMAGE
+      #     docker push $IMAGE
+      #     echo "image_uri=${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}" >> "$GITHUB_OUTPUT"
+      #     echo "IMAGE is $IMAGE"
 
   ecs_deploy:
     needs: build_and_push_image
     runs-on: ubuntu-latest
     steps:
       - name: check image
-        run: echo ${{needs.build_and_push_image.outputs.image_path  }}
+        run: |
+          echo ${{ needs.build_and_push_image.outputs.item1 }}
   #     - name: Checkout repo
   #       uses: actions/checkout@v4
 
