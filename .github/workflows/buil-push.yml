@@ -8,7 +8,7 @@ jobs:
   build_and_push_image:
     runs-on: ubuntu-latest
     outputs:
-      image: ${{ steps.set-image.outputs.image }}
+      image: ${{ steps.set-image.outputs.image_uri }}
     env:
       AWS_REPOSITORY_NAME: "sample_repo"
 
@@ -47,14 +47,16 @@ jobs:
           IMAGE=${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}
           docker build -f ./docker/Dockerfile . --tag $IMAGE
           docker push $IMAGE
-          echo "image=$IMAGE" >> $GITHUB_OUTPUT
+          echo "image_uri =$IMAGE" >> $GITHUB_OUTPUT
+
+          echo image_uri
 
   ecs_deploy:
     needs: build_and_push_image
     runs-on: ubuntu-latest
     steps:
       - name: Show built image
-        run: echo "${{ needs.build_and_push_image.outputs.image }}"
+        run: echo "${{ needs.build_and_push_image.outputs.image_uri }}"
       # - name: Checkout repo
       #   uses: actions/checkout@v4
 
