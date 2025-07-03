@@ -65,7 +65,7 @@ COPY ../example-api /var/www/html
 WORKDIR /var/www/html
 
 # .envファイルのコピーは composer install より前に
-COPY docker/.env.production .env
+COPY docker/env.example .env
 
 # Laravel依存のインストールと準備
 RUN composer install --no-dev --optimize-autoloader \
