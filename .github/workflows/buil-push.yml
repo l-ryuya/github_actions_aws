@@ -37,8 +37,9 @@ jobs:
             aws ecr create-repository --repository-name ${{ env.AWS_REPOSITORY_NAME }} --region ${{ secrets.AWS_REGION }}
           fi
           
-      - name: build and push docker image to ecr
-        id: set-image
+      
+      - id: set-image
+        name: build and push docker image to ecr
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: ${{ env.AWS_REPOSITORY_NAME }}
@@ -50,7 +51,7 @@ jobs:
           IMAGE=${REGISTRY}/${REPOSITORY}:${IMAGE_TAG}
           docker build -f ./docker/Dockerfile . --tag $IMAGE
           docker push $IMAGE
-          echo "image_uri=$IMAGE" >> $GITHUB_OUTPUT
+          echo "image_uri=$IMAGE" >> "$GITHUB_OUTPUT"
 
           echo "IMAGE is $IMAGE"
 
