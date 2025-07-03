@@ -70,6 +70,6 @@ jobs:
         id: render-web-container
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ../ecs/task-definition.json
+          task-definition: ./ecs/task-definition.json
           container-name: sample_container
           image: test
