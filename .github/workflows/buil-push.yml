@@ -12,7 +12,7 @@ jobs:
       # イメージのpathを次のjobで使用できるようにすうる
       # 変数名image_path
       item1: ${{ steps.test.outputs.hello}}
-      item2: ${{ steps.set-image.outputs.image_uri}}
+      item2: ${{ steps.test1.outputs.image_uri}}
     env:
       AWS_REPOSITORY_NAME: "sample_repo"
     steps:
@@ -46,7 +46,7 @@ jobs:
           fi
       # jobにIDを指定する
       - name: build and push docker image to ecr
-        id: set-image
+        id: test1
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           REPOSITORY: ${{ env.AWS_REPOSITORY_NAME }}
@@ -64,7 +64,7 @@ jobs:
       - name: Debug set-image output
         run: |
           echo "test output: ${{ steps.test.outputs.hello }}"
-          echo "image_uri output: ${{ steps.set-image.outputs.image_uri }}"
+          echo "image_uri output: ${{ steps.test1.outputs.image_uri }}"
 
 
   ecs_deploy:
