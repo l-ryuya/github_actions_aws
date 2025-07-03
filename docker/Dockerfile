@@ -64,8 +64,8 @@ RUN npm install node-sass --nodedir=/usr/include/node # node-sassビルド用に
 COPY ../example-api /var/www/html
 WORKDIR /var/www/html
 
-# .envファイルのコピーは composer install より前に
-COPY docker/env.example .env
+# # .envファイルのコピーは composer install より前に
+# COPY ../example-api/env.example .env
 
 # Laravel依存のインストールと準備
 RUN composer install --no-dev --optimize-autoloader \
